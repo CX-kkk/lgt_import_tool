@@ -5,7 +5,7 @@ import sys
 
 from Qt import QtCore, QtWidgets, _loadUi, QtGui
 import basic_gui
-from core import assign_shader
+from core import assign_shader, core, utils
 
 
 
@@ -18,10 +18,17 @@ class PreviewWidget(QtWidgets.QWidget):
 
         self.setWindowTitle('test Tool')
         self.switch_bool = self.get_radio_button_options(self.QFrame_opt) == 'from_version'
+        self.init_ui()
         self.init_layout()
         self.init_connectiond()
         test_path = 'X:/pipelinernd_rnd-0000/zzz_dev/test_shot/3d/anim/_publish/v005'
         self.lineEdit_path.setText(test_path)
+
+    def init_ui(self):
+        current_file_path = core.get_current_scene_file()
+        all_versions = utils.get_all_published_versions(current_file_path, 'anim')
+        self.comboBox_version.clear()
+        self.comboBox_version.addItems(all_versions)
 
     @staticmethod
     def get_radio_button_options(frame_widget):

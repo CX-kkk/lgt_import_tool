@@ -28,9 +28,6 @@
       </property>
       <item>
        <widget class="QRadioButton" name="radioButton_from_version">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
         <property name="text">
          <string>Load from version</string>
         </property>
@@ -64,9 +61,6 @@
    </item>
    <item>
     <widget class="QWidget" name="QWidget_from_version" native="true">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="leftMargin">
        <number>1</number>

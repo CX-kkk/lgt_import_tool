@@ -41,14 +41,15 @@ def import_assign(info_mats, dic_nodes, namespace=''):
 
 
 def import_shader(shader_path, renaming_prefix):
-    # cmds.file(shader_path, i=True, type="mayaBinary", ignoreVersion=True, ra=True, mergeNamespacesOnClash=False,rpr=renaming_prefix, options="v=0;", pr=True)
+    # cmds.file(shader_path, i=True, type="mayaBinary", ignoreVersion=True, ra=True,
+    # mergeNamespacesOnClash=False,rpr=renaming_prefix, options="v=0;", pr=True)
     cmds.file(shader_path, i=True, type="mayaAscii", ignoreVersion=True, ra=True, mergeNamespacesOnClash=False,
               rpr=renaming_prefix, options="v=0;", pr=True)
-
 
 def main(abc_path, json_path, shader_path, namespace, load_abc=True, load_texture=True):
     # reference abc
     if load_abc:
+        # TODO: add abc plug-in checking first
         cmds.file(abc_path, r=True, type="Alembic", ignoreVersion=True, gl=True, mergeNamespacesOnClash=False,
                   namespace=namespace)
     if load_texture:
