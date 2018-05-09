@@ -31,6 +31,9 @@
         <property name="text">
          <string>Load from version</string>
         </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -39,7 +42,7 @@
          <string>Load from path</string>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -61,6 +64,9 @@
    </item>
    <item>
     <widget class="QWidget" name="QWidget_from_version" native="true">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="leftMargin">
        <number>1</number>
@@ -99,6 +105,9 @@
    </item>
    <item>
     <widget class="QWidget" name="QWidget_from_path" native="true">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="leftMargin">
        <number>1</number>

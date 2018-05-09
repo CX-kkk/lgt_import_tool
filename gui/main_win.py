@@ -17,16 +17,19 @@ class PreviewWidget(QtWidgets.QWidget):
         _loadUi(ui_file, self)
 
         self.setWindowTitle('test Tool')
+        self.current_file_path = core.get_current_scene_file()
         self.switch_bool = self.get_radio_button_options(self.QFrame_opt) == 'from_version'
         self.init_ui()
         self.init_layout()
         self.init_connectiond()
-        test_path = 'X:/pipelinernd_rnd-0000/zzz_dev/test_shot/3d/anim/_publish/v005'
-        self.lineEdit_path.setText(test_path)
+        # test_path = 'X:/pipelinernd_rnd-0000/zzz_dev/test_shot/3d/anim/_publish/v005'
+        # self.lineEdit_path.setText(test_path)
 
     def init_ui(self):
-        current_file_path = core.get_current_scene_file()
-        all_versions = utils.get_all_published_versions(current_file_path, 'anim')
+        self.set_version_combobox()
+
+    def set_version_combobox(self):
+        all_versions = utils.get_all_published_versions(self.current_file_path, 'anim')
         self.comboBox_version.clear()
         self.comboBox_version.addItems(all_versions)
 
@@ -82,10 +85,12 @@ class PreviewWidget(QtWidgets.QWidget):
 
     def get_abc_from_version(self):
         version = self.get_combobox_options(self.comboBox_version)
-        # full_path = os.path.join('/sw/...', version)
-        # if os.path.exists(full_path):
-        #     self.get_abc(full_path)
-        print version
+        file_path = utils.get_certain_version(self.current_file_path, version, 'anim')
+        full_path = os.path.dirname(file_path)
+        # self.lineEdit_path.setText(full_path)
+        if os.path.exists(full_path):
+            self.get_abc(full_path)
+        print 'Get abc cache from: ',full_path
 
     def get_abc_from_path(self):
         full_path = self.get_line_edit_options(self.lineEdit_path)

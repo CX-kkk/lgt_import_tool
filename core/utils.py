@@ -31,3 +31,15 @@ def get_all_published_versions(file_path, task=None):
     return version_list
 
 
+def get_certain_version(file_path, version, task):
+    """
+
+    :param str file_path:
+    :param str version: eg:001
+    :return:
+    """
+    naming = NamingAPI.parser(file_path)
+    naming.version = version
+    naming.task = task
+    match_path = naming.get_publish_full_path()
+    return match_path

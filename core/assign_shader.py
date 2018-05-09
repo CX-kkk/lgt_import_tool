@@ -1,7 +1,7 @@
 import json
 import maya.cmds as cmds
 import pymel.core as pm
-import core.import_shading_group as isg
+import import_shading_group as isg
 
 
 def check_engine(engine, namespace=''):
