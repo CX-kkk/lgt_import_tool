@@ -4,9 +4,9 @@ import os
 import sys
 
 from Qt import QtCore, QtWidgets, _loadUi, QtGui
+from hz.naming_api import NamingAPI
 import basic_gui
 from core import assign_shader, core, utils
-
 
 
 class PreviewWidget(QtWidgets.QWidget):
@@ -64,23 +64,22 @@ class PreviewWidget(QtWidgets.QWidget):
             print 'from_version'
 
     def get_abc(self, full_path):
-        # print full_path
-        # for abc in os.listdir(full_path):
-        #     if os.path.splitext(abc)[-1] == '.abc':
-        #         print os.path.splitext(abc)[0]
+        self.listWidget_abc.clear_item()
         abc_list = filter(lambda x: os.path.splitext(x)[-1] == '.abc', os.listdir(full_path))
+        rigging_dict = utils.read_in_json(os.path.join(full_path, 'rigging_info.json'))
         for abc in abc_list:
             abc_path = os.path.join(str(full_path), abc.encode())
-            # TODO: anim pub should write out a json file, whcih like as follows:
-            '''
-            {"abc_name.abc": {"rigging_path": "",
-                              "rigging_related_mod_path": ""}
-            }
-            '''
-            metadata = {'asset_name': abc, 'abc_path': abc_path,
+            asset_name = abc.rsplit('.', 1)[0].rsplit('_', 1)[-1]
+            rigging_path = rigging_dict[asset_name].values()[0]
+            naming = NamingAPI.parser(rigging_path)
+            naming.task = 'shd'
+            latest_shd_path = os.path.dirname(naming.get_latest_version())
+            metadata = {'abc_name': abc, 'abc_path': abc_path,
                         'namespace': abc.rsplit('.', 1)[0],
-                        'shader_path': 'X:/pipelinernd_rnd-0000/zzz_dev/test_shot/3d/shd/_publish/v002/shaders_tex.ma',
-                        'json_path': 'X:/pipelinernd_rnd-0000/zzz_dev/test_shot/3d/shd/_publish/v002/shader_tex.json'}
+                        'asset_name': asset_name,
+                        'shader_path': os.path.join(latest_shd_path, '{}.ma'.format(asset_name)),
+                        'json_path': os.path.join(latest_shd_path, '{}.json'.format(asset_name))
+                        }
             self.listWidget_abc.add_item(basic_gui.MotionItem(abc, enable=True), metadata)
 
     def get_abc_from_version(self):
@@ -90,7 +89,7 @@ class PreviewWidget(QtWidgets.QWidget):
         # self.lineEdit_path.setText(full_path)
         if os.path.exists(full_path):
             self.get_abc(full_path)
-        print 'Get abc cache from: ',full_path
+        print 'Get abc cache from: ', full_path
 
     def get_abc_from_path(self):
         full_path = self.get_line_edit_options(self.lineEdit_path)
@@ -100,7 +99,6 @@ class PreviewWidget(QtWidgets.QWidget):
     def init_layout(self):
         self.listWidget_abc = basic_gui.ListWidget()
         self.verticalLayout_items.addWidget(self.listWidget_abc)
-
         # self.setLayout(self.verticalLayout_publish.parent())
 
     def run(self):
@@ -111,8 +109,6 @@ class PreviewWidget(QtWidgets.QWidget):
             load_texture = each.widget.texture_checked
             assign_shader.main(metadata.get('abc_path'), metadata.get('json_path'), metadata.get('shader_path'),
                                metadata.get('namespace'), load_abc=load_abc, load_texture=load_texture)
-
-
 
     def init_connectiond(self):
         self.radioButton_from_version.clicked.connect(self.load_opt)

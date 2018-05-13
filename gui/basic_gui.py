@@ -33,6 +33,10 @@ class ListWidget(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
+    def clear_item(self):
+        self.data = list()
+        self.pool.clear()
+
     def add_item(self, item, metadata=None, height=None):
         assert isinstance(item, QtWidgets.QWidget)
         list_item = QtWidgets.QListWidgetItem()

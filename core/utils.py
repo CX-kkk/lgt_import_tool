@@ -4,10 +4,20 @@ module author: Jojo <jolievfx@gmail.com>
 """
 import pprint
 import os
+import json
 import glob
 
 import pymel.core as pm
 from hz.naming_api import NamingAPI
+
+
+def get_match_path(file_path, task=None):
+    naming = NamingAPI.parser(file_path)
+    naming.version = '*'
+    current_task = naming.parser(file_path).task
+    naming.task = task if task else current_task
+    match_path = naming.get_publish_full_path()
+    return match_path
 
 
 def get_all_published_versions(file_path, task=None):
@@ -17,14 +27,10 @@ def get_all_published_versions(file_path, task=None):
     :param str task: task which want to get all versions
     :return:
     """
-    naming = NamingAPI.parser(file_path)
-    naming.version = '*'
-    current_task = naming.parser(file_path).task
-    naming.task = task if task else current_task
-    match_path = naming.get_publish_full_path()
+    match_path = get_match_path(file_path, task)
     version_list = []
+    naming = NamingAPI.parser(file_path)
     for path in glob.glob(match_path):
-        # print path
         version = naming.parser(path).version
         if version not in version_list:
             version_list.append(version)
@@ -43,3 +49,8 @@ def get_certain_version(file_path, version, task):
     naming.task = task
     match_path = naming.get_publish_full_path()
     return match_path
+
+def read_in_json(file_path):
+    with open(file_path, "r") as load_f:
+        new_dict = json.load(load_f)
+    return new_dict

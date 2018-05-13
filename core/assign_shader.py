@@ -2,6 +2,7 @@ import json
 import maya.cmds as cmds
 import pymel.core as pm
 import import_shading_group as isg
+import core
 
 
 def check_engine(engine, namespace=''):
@@ -46,10 +47,12 @@ def import_shader(shader_path, renaming_prefix):
     cmds.file(shader_path, i=True, type="mayaAscii", ignoreVersion=True, ra=True, mergeNamespacesOnClash=False,
               rpr=renaming_prefix, options="v=0;", pr=True)
 
+
 def main(abc_path, json_path, shader_path, namespace, load_abc=True, load_texture=True):
     # reference abc
     if load_abc:
-        # TODO: add abc plug-in checking first
+        load_list = ['AbcImport']
+        core.load_plug_in(load_list)
         cmds.file(abc_path, r=True, type="Alembic", ignoreVersion=True, gl=True, mergeNamespacesOnClash=False,
                   namespace=namespace)
     if load_texture:
