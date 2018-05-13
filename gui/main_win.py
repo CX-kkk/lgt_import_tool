@@ -22,6 +22,7 @@ class PreviewWidget(QtWidgets.QWidget):
         self.init_ui()
         self.init_layout()
         self.init_connectiond()
+        self.get_abc_from_version()
         # test_path = 'X:/pipelinernd_rnd-0000/zzz_dev/test_shot/3d/anim/_publish/v005'
         # self.lineEdit_path.setText(test_path)
 
