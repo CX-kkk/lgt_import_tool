@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+from functools import partial
 
 from Qt import QtWidgets, _loadUi
 from hz.naming_api import NamingAPI
@@ -17,19 +18,20 @@ class PreviewWidget(QtWidgets.QWidget):
 
         self.setWindowTitle('Lighting import tool')
         self.current_file_path = core.get_current_scene_file()
-        self.switch_bool = self.get_radio_button_options(self.QFrame_opt) == 'from_version'
+        # self.switch_bool = self.get_radio_button_options(self.QFrame_opt) == 'from_version'
         self.init_ui()
         self.init_layout()
         self.init_connectiond()
         self.get_abc_from_version()
 
     def init_ui(self):
-        self.set_version_combobox()
+        self.set_version_combobox(self.comboBox_anim_version, 'anim')
+        self.set_version_combobox(self.comboBox_lay_version, 'layout')
 
-    def set_version_combobox(self):
-        all_versions = utils.get_all_published_versions(self.current_file_path, 'anim')
-        self.comboBox_version.clear()
-        self.comboBox_version.addItems(all_versions)
+    def set_version_combobox(self, combo_box, step):
+        all_versions = utils.get_all_published_versions(self.current_file_path, step)
+        combo_box.clear()
+        combo_box.addItems(all_versions)
 
     @staticmethod
     def get_radio_button_options(frame_widget):
@@ -37,7 +39,7 @@ class PreviewWidget(QtWidgets.QWidget):
             if not isinstance(child, QtWidgets.QRadioButton):
                 continue
             if child.isChecked():
-                return str(child.objectName()).replace('radioButton_', '')
+                return str(child.objectName())
 
     @staticmethod
     def get_check_box_options(check_box):
@@ -51,18 +53,46 @@ class PreviewWidget(QtWidgets.QWidget):
     def get_line_edit_options(line_edit):
         return line_edit.text()
 
-    def load_opt(self):
-        self.switch_bool = self.get_radio_button_options(self.QFrame_opt) == 'from_version'
-        self.QWidget_from_version.setEnabled(self.switch_bool)
-        self.QWidget_from_path.setEnabled(not self.switch_bool)
+    def widget_enable(self):
+        from_anim = self.checkBox_from_anim.isChecked()
+        self.Qwidget_from_anim.setEnabled(from_anim)
+        from_layout = self.checkBox_from_layout.isChecked()
+        self.Qwidget_from_layout.setEnabled(from_layout)
 
-        if self.switch_bool:
-            version = self.get_combobox_options(self.comboBox_version)
-            # full_path = os.path.join('/sw/...', version)
-            print 'from_version'
+    def load_mode_opt(self, QFrame, QWidget_from_version, QWidget_from_path):
+        self.switch_bool = self.get_radio_button_options(QFrame).endswith('from_version')
+        QWidget_from_version.setEnabled(self.switch_bool)
+        QWidget_from_path.setEnabled(not self.switch_bool)
 
-    def get_abc(self, full_path):
-        self.listWidget_abc.clear_item()
+    def init_layout(self):
+        self.listWidget_anim_abc = basic_gui.ListWidget()
+        self.verticalLayout_anim_items.addWidget(self.listWidget_anim_abc)
+        self.listWidget_layout_abc = basic_gui.ListWidget()
+        self.verticalLayout_lauout_items.addWidget(self.listWidget_layout_abc)
+
+    def init_connectiond(self):
+        self.checkBox_from_anim.clicked.connect(self.widget_enable)
+        self.checkBox_from_layout.clicked.connect(self.widget_enable)
+        self.radioButton_from_version.clicked.connect(partial(self.load_mode_opt, self.QFrame_opt,
+                                                              self.QWidget_from_version,
+                                                              self.QWidget_from_path))
+        self.radioButton_from_path.clicked.connect(partial(self.load_mode_opt, self.QFrame_opt,
+                                                           self.QWidget_from_version,
+                                                           self.QWidget_from_path))
+        self.radioButton_lay_from_version.clicked.connect(partial(self.load_mode_opt, self.QFrame_lay_opt,
+                                                                  self.QWidget_lay_from_version,
+                                                                  self.QWidget_lay_from_path))
+        self.radioButton_lay_from_path.clicked.connect(partial(self.load_mode_opt, self.QFrame_lay_opt,
+                                                               self.QWidget_lay_from_version,
+                                                               self.QWidget_lay_from_path))
+        self.comboBox_anim_version.currentIndexChanged.connect(self.get_abc_from_version)
+        self.lineEdit_anim_path.textEdited.connect(partial(self.get_abc_from_path, self.lineEdit_anim_path))
+        self.lineEdit_lay_path.textEdited.connect(partial(self.get_abc_from_path, self.lineEdit_lay_path))
+        self.pushButton_apply.clicked.connect(self.run)
+        self.pushButton_cancle.clicked.connect(self.close)
+
+    def get_anim_abc(self, full_path):
+        self.listWidget_anim_abc.clear_item()
         abc_list = filter(lambda x: os.path.splitext(x)[-1] == '.abc', os.listdir(full_path))
         rig_info_file = os.path.join(full_path, 'rigging_info.json')
         if os.path.isfile(rig_info_file):
@@ -80,28 +110,24 @@ class PreviewWidget(QtWidgets.QWidget):
                             'shader_path': os.path.join(latest_shd_path, '{}.ma'.format(asset_name)),
                             'json_path': os.path.join(latest_shd_path, '{}.json'.format(asset_name))
                             }
-                self.listWidget_abc.add_item(basic_gui.MotionItem(abc, enable=True), metadata)
+                self.listWidget_anim_abc.add_item(basic_gui.MotionItem(abc, enable=True), metadata)
 
     def get_abc_from_version(self):
-        version = self.get_combobox_options(self.comboBox_version)
+        version = self.get_combobox_options(self.comboBox_anim_version)
         file_path = utils.get_certain_version(self.current_file_path, version, 'anim')
         full_path = os.path.dirname(file_path)
         if os.path.exists(full_path):
-            self.get_abc(full_path)
+            self.get_anim_abc(full_path)
         print 'Get abc cache from: ', full_path
 
-    def get_abc_from_path(self):
-        full_path = self.get_line_edit_options(self.lineEdit_path)
+    def get_abc_from_path(self, lineEdit_path):
+        full_path = self.get_line_edit_options(lineEdit_path)
         if os.path.exists(full_path):
-            print self.get_abc(full_path)
-
-    def init_layout(self):
-        self.listWidget_abc = basic_gui.ListWidget()
-        self.verticalLayout_items.addWidget(self.listWidget_abc)
+            self.get_anim_abc(full_path)
 
     def run(self):
         print 'run'
-        for each in self.listWidget_abc:
+        for each in self.listWidget_anim_abc:
             metadata = each.metadata
             load_abc = each.widget.abc_checked
             load_texture = each.widget.texture_checked
@@ -111,13 +137,7 @@ class PreviewWidget(QtWidgets.QWidget):
                                metadata.get('namespace'), load_abc=load_abc,
                                load_texture=load_texture)
 
-    def init_connectiond(self):
-        self.radioButton_from_version.clicked.connect(self.load_opt)
-        self.radioButton_from_path.clicked.connect(self.load_opt)
-        self.comboBox_version.currentIndexChanged.connect(self.get_abc_from_version)
-        self.lineEdit_path.textEdited.connect(self.get_abc_from_path)
-        self.pushButton_apply.clicked.connect(self.run)
-        self.pushButton_cancle.clicked.connect(self.close)
+
 
 
 if __name__ == '__main__':
