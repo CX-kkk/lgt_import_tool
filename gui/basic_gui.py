@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import namedtuple
 
-from Qt import QtCore, QtWidgets, _loadUi, QtGui
-
+from Qt import QtCore, QtWidgets
 
 WidgetData = namedtuple("WidgetData", ["widget", "metadata"])
 
@@ -48,12 +47,15 @@ class ListWidget(QtWidgets.QWidget):
         self.pool.addItem(list_item)
         self.pool.setItemWidget(list_item, self.data[-1].widget)
 
+
 class MotionItem(QtWidgets.QWidget):
     """
     The item widget of QListWidget in motion group box.
     Used to toggle motion info exporter of each asset in layout scene.
     """
-    def __init__(self, name, enable=True, abc_option=True, texture_option=True):
+
+    def __init__(self, name, enable=True, abc_option=True,
+                 texture_option=True):
         super(MotionItem, self).__init__()
 
         self.label = QtWidgets.QLabel(name)

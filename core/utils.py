@@ -2,12 +2,9 @@
 """
 module author: Jojo <jolievfx@gmail.com>
 """
-import pprint
-import os
-import json
 import glob
+import json
 
-import pymel.core as pm
 from hz.naming_api import NamingAPI
 
 

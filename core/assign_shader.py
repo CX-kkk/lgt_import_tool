@@ -1,8 +1,9 @@
 import json
+
+import lgt_import_tool.core.import_shading_group as isg
 import maya.cmds as cmds
 import pymel.core as pm
-import import_shading_group as isg
-import core
+from lgt_import_tool.core import core
 
 
 def check_engine(engine, namespace=''):
@@ -42,8 +43,6 @@ def import_assign(info_mats, dic_nodes, namespace=''):
 
 
 def import_shader(shader_path, renaming_prefix):
-    # cmds.file(shader_path, i=True, type="mayaBinary", ignoreVersion=True, ra=True,
-    # mergeNamespacesOnClash=False,rpr=renaming_prefix, options="v=0;", pr=True)
     cmds.file(shader_path, i=True, type="mayaAscii", ignoreVersion=True, ra=True, mergeNamespacesOnClash=False,
               rpr=renaming_prefix, options="v=0;", pr=True)
 
@@ -53,8 +52,8 @@ def main(abc_path, json_path, shader_path, namespace, load_abc=True, load_textur
     if load_abc:
         load_list = ['AbcImport']
         core.load_plug_in(load_list)
-        cmds.file(abc_path, r=True, type="Alembic", ignoreVersion=True, gl=True, mergeNamespacesOnClash=False,
-                  namespace=namespace)
+        cmds.file(abc_path, r=True, type="Alembic", ignoreVersion=True, gl=True,
+                  mergeNamespacesOnClash=False, namespace=namespace)
     if load_texture:
         # import json
         ijs = isg.ImportJsonShader(json_path)
@@ -72,5 +71,3 @@ if __name__ == '__main__':
     json_path = '/show/BRI/shot/z_dev/testShot/ani/work/pletest/maya/scenes/hz/test/ex_shd/shader.json'
     namespace = 'aa'
     main(abc_path, json_path, namespace)
-
-

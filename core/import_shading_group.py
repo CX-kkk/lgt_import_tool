@@ -1,10 +1,8 @@
 import json
+
 import pymel.core as pm
 
 
-# call example
-# ijs = ImportJsonShader('/job/HOME/huanggb/working/output2/test.json')
-# ijs.import_shader()
 class ImportJsonShader:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -109,12 +107,10 @@ class ImportJsonShader:
         source_attr_name = attr_value[2]
         if source_node_name in dic_nodes.keys():
             pm.connectAttr('{}.{}'.format(dic_nodes[source_node_name].name(), source_attr_name),
-                           '{}.{}'.format(node.name(), attr_name),
-                           f=1)
+                           '{}.{}'.format(node.name(), attr_name), f=1)
         else:
             pm.connectAttr('{}.{}'.format(source_node_name, source_attr_name),
-                           '{}.{}'.format(node.name(), attr_name),
-                           f=1)
+                           '{}.{}'.format(node.name(), attr_name), f=1)
 
     def import_connections(self, info_mats, dic_nodes):
         for info_node in info_mats['nodes']:
