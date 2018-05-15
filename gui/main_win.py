@@ -147,6 +147,7 @@ class PreviewWidget(QtWidgets.QWidget):
             abc_widgets.append(self.listWidget_anim_abc)
         if self.checkBox_from_layout.isChecked():
             abc_widgets.append(self.listWidget_layout_abc)
+        num = 0
         for listWidget_abc in abc_widgets:
             for each in listWidget_abc:
                 metadata = each.metadata
@@ -155,8 +156,9 @@ class PreviewWidget(QtWidgets.QWidget):
                 assign_shader.main(metadata.get('abc_path'),
                                    metadata.get('json_path'),
                                    metadata.get('shader_path'),
-                                   metadata.get('namespace'), load_abc=load_abc,
+                                   metadata.get('namespace')+'_{}'.format(num), load_abc=load_abc,
                                    load_texture=load_texture)
+                num += 1
 
 
 if __name__ == '__main__':
