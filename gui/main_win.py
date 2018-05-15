@@ -159,8 +159,6 @@ class PreviewWidget(QtWidgets.QWidget):
                                    load_texture=load_texture)
 
 
-
-
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     aa = PreviewWidget()
