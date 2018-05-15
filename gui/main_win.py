@@ -23,6 +23,7 @@ class PreviewWidget(QtWidgets.QWidget):
         self.init_layout()
         self.init_connectiond()
         self.get_abc_from_version()
+        self.get_lay_abc_from_version()
 
     def init_ui(self):
         self.set_version_combobox(self.comboBox_anim_version, 'anim')
@@ -86,13 +87,14 @@ class PreviewWidget(QtWidgets.QWidget):
                                                                self.QWidget_lay_from_version,
                                                                self.QWidget_lay_from_path))
         self.comboBox_anim_version.currentIndexChanged.connect(self.get_abc_from_version)
-        self.lineEdit_anim_path.textEdited.connect(partial(self.get_abc_from_path, self.lineEdit_anim_path))
-        self.lineEdit_lay_path.textEdited.connect(partial(self.get_abc_from_path, self.lineEdit_lay_path))
+        self.lineEdit_anim_path.textEdited.connect(self.get_anim_abc_from_path)
+        self.comboBox_lay_version.currentIndexChanged.connect(self.get_lay_abc_from_version)
+        self.lineEdit_lay_path.textEdited.connect(self.get_lay_abc_from_path)
         self.pushButton_apply.clicked.connect(self.run)
         self.pushButton_cancle.clicked.connect(self.close)
 
-    def get_anim_abc(self, full_path):
-        self.listWidget_anim_abc.clear_item()
+    def get_abc(self, full_path, listWidget_abc):
+        listWidget_abc.clear_item()
         abc_list = filter(lambda x: os.path.splitext(x)[-1] == '.abc', os.listdir(full_path))
         rig_info_file = os.path.join(full_path, 'rigging_info.json')
         if os.path.isfile(rig_info_file):
@@ -110,32 +112,51 @@ class PreviewWidget(QtWidgets.QWidget):
                             'shader_path': os.path.join(latest_shd_path, '{}.ma'.format(asset_name)),
                             'json_path': os.path.join(latest_shd_path, '{}.json'.format(asset_name))
                             }
-                self.listWidget_anim_abc.add_item(basic_gui.MotionItem(abc, enable=True), metadata)
+                listWidget_abc.add_item(basic_gui.MotionItem(abc, enable=True), metadata)
 
     def get_abc_from_version(self):
         version = self.get_combobox_options(self.comboBox_anim_version)
         file_path = utils.get_certain_version(self.current_file_path, version, 'anim')
         full_path = os.path.dirname(file_path)
         if os.path.exists(full_path):
-            self.get_anim_abc(full_path)
+            self.get_abc(full_path, self.listWidget_anim_abc)
         print 'Get abc cache from: ', full_path
 
-    def get_abc_from_path(self, lineEdit_path):
-        full_path = self.get_line_edit_options(lineEdit_path)
+    def get_lay_abc_from_version(self):
+        version = self.get_combobox_options(self.comboBox_lay_version)
+        file_path = utils.get_certain_version(self.current_file_path, version, 'layout')
+        full_path = os.path.dirname(file_path)
         if os.path.exists(full_path):
-            self.get_anim_abc(full_path)
+            self.get_abc(full_path, self.listWidget_layout_abc)
+        print 'Get abc cache from: ', full_path
+
+    def get_anim_abc_from_path(self):
+        full_path = self.get_line_edit_options(self.lineEdit_anim_path)
+        if os.path.exists(full_path):
+            self.get_abc(full_path, self.listWidget_anim_abc)
+
+    def get_lay_abc_from_path(self):
+        full_path = self.get_line_edit_options(self.lineEdit_lay_path)
+        if os.path.exists(full_path):
+            self.get_abc(full_path, self.listWidget_layout_abc)
 
     def run(self):
         print 'run'
-        for each in self.listWidget_anim_abc:
-            metadata = each.metadata
-            load_abc = each.widget.abc_checked
-            load_texture = each.widget.texture_checked
-            assign_shader.main(metadata.get('abc_path'),
-                               metadata.get('json_path'),
-                               metadata.get('shader_path'),
-                               metadata.get('namespace'), load_abc=load_abc,
-                               load_texture=load_texture)
+        abc_widgets = []
+        if self.checkBox_from_anim.isChecked():
+            abc_widgets.append(self.listWidget_anim_abc)
+        if self.checkBox_from_layout.isChecked():
+            abc_widgets.append(self.listWidget_layout_abc)
+        for listWidget_abc in abc_widgets:
+            for each in listWidget_abc:
+                metadata = each.metadata
+                load_abc = each.widget.abc_checked
+                load_texture = each.widget.texture_checked
+                assign_shader.main(metadata.get('abc_path'),
+                                   metadata.get('json_path'),
+                                   metadata.get('shader_path'),
+                                   metadata.get('namespace'), load_abc=load_abc,
+                                   load_texture=load_texture)
 
 
 
