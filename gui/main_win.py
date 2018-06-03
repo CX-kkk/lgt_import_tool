@@ -2,6 +2,7 @@
 import os
 import sys
 from functools import partial
+import maya.api.OpenMaya as om
 
 from Qt import QtWidgets, _loadUi
 from hz.naming_api import NamingAPI
@@ -12,13 +13,16 @@ from lgt_import_tool.gui import basic_gui
 class PreviewWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(PreviewWidget, self).__init__(parent)
+        self.setWindowTitle('Lighting import tool')
+        self.current_file_path = core.get_current_scene_file()
+        try:
+            NamingAPI.parser(self.current_file_path)
+        except RuntimeError:
+            om.MGlobal.displayWarning('Please open a lgt file that give a legal path.')
+            return
 
         ui_file = os.path.join(os.path.dirname(__file__), 'win.ui')
         _loadUi(ui_file, self)
-
-        self.setWindowTitle('Lighting import tool')
-        self.current_file_path = core.get_current_scene_file()
-        # self.switch_bool = self.get_radio_button_options(self.QFrame_opt) == 'from_version'
         self.init_ui()
         self.init_layout()
         self.init_connectiond()

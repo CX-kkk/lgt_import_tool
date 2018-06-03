@@ -3,5 +3,5 @@ from gui.main_win import PreviewWidget
 
 
 def win_run():
-    aa = PreviewWidget()
-    aa.show()
+    win = PreviewWidget()
+    win.show()
